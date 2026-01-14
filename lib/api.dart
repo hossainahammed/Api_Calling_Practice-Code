@@ -92,7 +92,7 @@ class _ApiCallState extends State<ApiCall> {
       ),
 
       body: GridView.builder(
-        itemCount: 10,
+        itemCount:productController.products.length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 10,
