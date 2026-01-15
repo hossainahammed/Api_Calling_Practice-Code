@@ -17,6 +17,29 @@ class ProductController {
       products = model.data ?? [];
     }
   }
+  Future<void> CreateProducts(String productName, String img, int qty, int UnitPrice, int totalPrice) async {
+    final response = await http.post(
+      Uri.parse(Urls.createdProduct),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        "ProductName": productName,
+        "ProductCode": DateTime.now().microsecondsSinceEpoch.toString(),  // Converted to string
+        "Img": img,
+        "Qty": qty,
+        "UnitPrice": UnitPrice,
+        "TotalPrice": totalPrice,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+
+      await fetchProducts();
+    } else {
+
+      throw Exception('Failed to create product: ${response.statusCode} ${response.body}');
+    }
+  }
+
 
   Future<bool> DeleteProducts(String productId) async {
     final response = await http.get(Uri.parse(Urls.deleteProduct(productId)));

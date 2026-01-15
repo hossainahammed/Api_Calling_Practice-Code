@@ -13,10 +13,13 @@ class _ApiCallState extends State<ApiCall> {
   final ProductController productController = ProductController();
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    setState(() {
-      productController.fetchProducts();
+    // Fetch products asynchronously and update UI when done
+    productController.fetchProducts().then((_) {
+      setState(() {});  // Refresh the UI after data is loaded
+    }).catchError((error) {
+      // Optional: Handle errors (e.g., show a snackbar or log)
+      print('Error fetching products: $error');
     });
   }
 
@@ -26,57 +29,77 @@ class _ApiCallState extends State<ApiCall> {
       TextEditingController productNameController = TextEditingController();
       TextEditingController productQTYController = TextEditingController();
       TextEditingController productImageController = TextEditingController();
-      TextEditingController productUnitPriceController =
-          TextEditingController();
-      TextEditingController productTotalPriceController =
-          TextEditingController();
+      TextEditingController productUnitPriceController = TextEditingController();
+      TextEditingController productTotalPriceController = TextEditingController();
 
       showDialog(
         context: context,
-        builder:
-            (context) => AlertDialog(
-              title: Text('Add product'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
+        builder: (context) => AlertDialog(
+          title: Text('Add product'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: productNameController,  // Added controller
+                decoration: InputDecoration(labelText: 'Product name'),
+              ),
+              TextField(
+                controller: productImageController,  // Added controller
+                decoration: InputDecoration(labelText: 'Product Image'),
+              ),
+              TextField(
+                controller: productQTYController,  // Added controller
+                decoration: InputDecoration(labelText: 'Product Quantity'),
+              ),
+              TextField(
+                controller: productUnitPriceController,  // Added controller
+                decoration: InputDecoration(labelText: 'Product Unit Price'),
+              ),
+              TextField(
+                controller: productTotalPriceController,  // Added controller
+                decoration: InputDecoration(labelText: 'Product Total price'),
+              ),
+              SizedBox(height: 10),
+              Row(
                 children: [
-                  TextField(
-                    decoration: InputDecoration(labelText: 'Product name'),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text('Close'),
                   ),
-                  TextField(
-                    decoration: InputDecoration(labelText: 'Product Image'),
-                  ),
-                  TextField(
-                    decoration: InputDecoration(labelText: 'Product Quantity'),
-                  ),
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Product Unit Price',
-                    ),
-                  ),
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Product Total price',
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Row(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text('Close'),
-                      ),
-                      SizedBox(width: 15),
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: Text('Add Product'),
-                      ),
-                    ],
+                  SizedBox(width: 15),
+                  ElevatedButton(
+                    onPressed: () async {
+
+                      try {
+                        await productController.CreateProducts(
+                          productNameController.text,
+                          productImageController.text,
+                          int.parse(productQTYController.text),
+                          int.parse(productUnitPriceController.text),
+                          int.parse(productTotalPriceController.text),
+                        );
+                        // Refresh the list after successful creation
+                        await productController.fetchProducts();
+                        setState(() {});
+                        Navigator.pop(context);  // Close dialog
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Product Added Successfully')),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: $e')),
+                        );
+                      }
+                    },
+                    child: Text('Add Product'),
                   ),
                 ],
               ),
-            ),
+            ],
+          ),
+        ),
       );
     }
 
@@ -92,7 +115,8 @@ class _ApiCallState extends State<ApiCall> {
       ),
 
       body: GridView.builder(
-        itemCount:productController.products.length,
+       // itemCount:productController.products.length,
+        itemCount: productController.products.length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 10,
