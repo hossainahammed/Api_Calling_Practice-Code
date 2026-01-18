@@ -40,7 +40,24 @@ class ProductController {
     }
   }
 
-
+// Add this inside your ProductController class
+  Future<void> UpdateProducts(String id, String productName, String image, int qty, int unitPrice, int totalPrice) async {
+    final url = 'your-api-endpoint/products/$id';  // Replace with your actual API URL
+    final response = await http.put(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'ProductName': productName,
+        'Img': image,
+        'Qty': qty,
+        'UnitPrice': unitPrice,
+        'TotalPrice': totalPrice,
+      }),
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update product: ${response.body}');
+    }
+  }
   Future<bool> DeleteProducts(String productId) async {
     final response = await http.get(Uri.parse(Urls.deleteProduct(productId)));
 
