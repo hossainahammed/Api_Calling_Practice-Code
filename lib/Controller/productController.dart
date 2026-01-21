@@ -23,7 +23,7 @@ class ProductController {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         "ProductName": productName,
-        "ProductCode": DateTime.now().microsecondsSinceEpoch.toString(),  // Converted to string
+        "ProductCode": DateTime.now().microsecondsSinceEpoch.toString(),
         "Img": img,
         "Qty": qty,
         "UnitPrice": UnitPrice,
@@ -41,20 +41,30 @@ class ProductController {
   }
 
 
-  Future<void> UpdateProducts(String id, String productName, String image, int qty, int unitPrice, int totalPrice) async {
-    final response = await http.put(
-      Uri.parse(Urls.updateProduct(id)),
+  Future<void> UpdateProducts(String id, String productName, String image, int qty, int unitPrice, int totalPrice, {String? productCode}) async {
+    final url = Urls.updateProduct(id);
+    print('Update URL: $url');  // Debug
+    final body = jsonEncode({
+      'ProductName': productName,
+      'ProductCode': productCode ?? DateTime.now().microsecondsSinceEpoch.toString(),
+      'Img': image,
+      'Qty': qty,
+      'UnitPrice': unitPrice,
+      'TotalPrice': totalPrice,
+    });
+    //print('Update Body: $body');
+
+    final response = await http.post(
+      Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'ProductName': productName,
-        'Img': image,
-        'Qty': qty,
-        'UnitPrice': unitPrice,
-        'TotalPrice': totalPrice,
-      }),
+      body: body,
     );
-    if (response.statusCode != 200) {
-      throw Exception('Failed to update product: ${response.body}');
+
+   // print('Update Response Status: ${response.statusCode}');
+   // print('Update Response Body: ${response.body}');
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {  // Allow 200, 201, 204
+      throw Exception('Failed to update product: Status ${response.statusCode}, Body: ${response.body}');
     }
   }
 

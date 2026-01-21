@@ -85,7 +85,6 @@ class _ApiCallState extends State<ApiCall> {
                 SizedBox(width: 15),
                 ElevatedButton(
                   onPressed: () async {
-                    // Basic validation
                     if (productNameController.text.isEmpty ||
                         productImageController.text.isEmpty ||
                         productQTYController.text.isEmpty ||
@@ -110,17 +109,16 @@ class _ApiCallState extends State<ApiCall> {
 
                     try {
                       if (isEdit && product != null) {
-                        // Update existing product
                         await productController.UpdateProducts(
-                          product.sId.toString(),  // Assuming sId is the ID
+                          product.sId.toString(),
                           productNameController.text,
+                          productCode: product.productCode?.toString(),  // Pass existing ProductCode
                           productImageController.text,
                           qty,
                           unitPrice,
                           totalPrice,
                         );
                       } else {
-                        // Create new product
                         await productController.CreateProducts(
                           productNameController.text,
                           productImageController.text,
@@ -129,10 +127,10 @@ class _ApiCallState extends State<ApiCall> {
                           totalPrice,
                         );
                       }
-                      // Refresh the list after successful operation
+
                       await productController.fetchProducts();
                       setState(() {});
-                      Navigator.pop(context);  // Close dialog
+                      Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(isEdit ? 'Product Updated Successfully' : 'Product Added Successfully')),
                       );
